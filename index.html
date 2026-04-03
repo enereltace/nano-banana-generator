@@ -251,7 +251,7 @@ async function generatePrompt() {
   const textPart = { type: 'text', text: `Create a Nano Banana 2 prompt for: "${idea}"${extra ? `. Additional: ${extra}` : ''}. Style: ${style}. Hyper-realistic and ultra-detailed.${refImageBase64 ? ' Reference image attached — analyze and incorporate facial features.' : ''}` };
   const msgContent = refImageBase64 ? [{ type: 'image', source: { type: 'base64', media_type: refImageType, data: refImageBase64 } }, textPart] : [textPart];
   try {
-    const res = await fetch('/api/generate', {
+    const res = await fetch('/.netlify/functions/generate', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ apiKey, system: systemPrompt, messages: [{ role: 'user', content: msgContent }] })
