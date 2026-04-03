@@ -32,6 +32,6 @@ exports.handler = async function(event) {
     return { statusCode: response.status, headers, body: text };
 
   } catch(e) {
-    return { statusCode: 500, headers, body: JSON.stringify({ error: e.message, stack: e.stack }) };
+    return { statusCode: 500, headers, body: JSON.stringify({ error: e.message }) };
   }
 };
