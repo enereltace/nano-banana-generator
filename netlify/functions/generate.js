@@ -2,11 +2,12 @@ exports.handler = async function(event) {
   const headers = {
     'Access-Control-Allow-Origin': '*',
     'Access-Control-Allow-Headers': 'Content-Type',
-    'Access-Control-Allow-Methods': 'POST, OPTIONS'
+    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+    'Content-Type': 'application/json'
   };
 
   if (event.httpMethod === 'OPTIONS') return { statusCode: 200, headers, body: '' };
-  if (event.httpMethod !== 'POST') return { statusCode: 405, headers, body: 'Method not allowed' };
+  if (event.httpMethod !== 'POST') return { statusCode: 405, headers, body: JSON.stringify({ error: 'Method not allowed' }) };
 
   try {
     const { apiKey, messages, system } = JSON.parse(event.body);
@@ -19,12 +20,18 @@ exports.handler = async function(event) {
         'x-api-key': apiKey,
         'anthropic-version': '2023-06-01'
       },
-      body: JSON.stringify({ model: 'claude-sonnet-4-20250514', max_tokens: 1000, system, messages })
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        system,
+        messages
+      })
     });
 
-    const data = await response.json();
-    return { statusCode: response.status, headers, body: JSON.stringify(data) };
+    const text = await response.text();
+    return { statusCode: response.status, headers, body: text };
+
   } catch(e) {
-    return { statusCode: 500, headers, body: JSON.stringify({ error: e.message }) };
+    return { statusCode: 500, headers, body: JSON.stringify({ error: e.message, stack: e.stack }) };
   }
 };
