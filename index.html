@@ -1,1 +1,278 @@
-file:///Users/user/Downloads/index%20(1).html
+<!DOCTYPE html>
+<html lang="mn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nano Banana Prompt Generator</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #0e0e10;
+    --surface: #18181c;
+    --surface2: #222228;
+    --border: rgba(255,255,255,0.08);
+    --border2: rgba(255,255,255,0.14);
+    --text: #f0f0f0;
+    --muted: #888;
+    --accent: #f5c842;
+    --accent2: #e8a800;
+    --green: #4ade80;
+    --red: #f87171;
+    --radius: 12px;
+    --radius-sm: 8px;
+  }
+  body { background: var(--bg); color: var(--text); font-family: system-ui, -apple-system, sans-serif; min-height: 100vh; padding: 0; }
+  .header { background: var(--surface); border-bottom: 1px solid var(--border); padding: 16px 24px; display: flex; align-items: center; gap: 12px; }
+  .header-icon { width: 36px; height: 36px; background: var(--accent); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+  .header h1 { font-size: 16px; font-weight: 600; color: var(--text); }
+  .header p { font-size: 12px; color: var(--muted); margin-top: 2px; }
+  .main { display: grid; grid-template-columns: 1fr 1fr; gap: 0; height: calc(100vh - 69px); }
+  .panel { padding: 20px; overflow-y: auto; }
+  .panel-left { border-right: 1px solid var(--border); }
+  .section { margin-bottom: 20px; }
+  .section label { font-size: 12px; font-weight: 500; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; display: block; margin-bottom: 8px; }
+  .api-row { display: flex; gap: 8px; }
+  .api-row input { flex: 1; }
+  .eye-btn { background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 0 12px; cursor: pointer; color: var(--muted); font-size: 13px; white-space: nowrap; }
+  .eye-btn:hover { color: var(--text); }
+  input[type=text], input[type=password], textarea, select { width: 100%; background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius-sm); color: var(--text); font-size: 14px; padding: 10px 12px; outline: none; font-family: inherit; transition: border-color 0.15s; }
+  input:focus, textarea:focus, select:focus { border-color: var(--accent); }
+  textarea { resize: vertical; min-height: 80px; line-height: 1.5; }
+  select option { background: var(--surface2); }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .gen-btn { width: 100%; padding: 12px; font-size: 15px; font-weight: 600; background: var(--accent); color: #000; border: none; border-radius: var(--radius-sm); cursor: pointer; transition: background 0.15s; margin-top: 4px; }
+  .gen-btn:hover { background: var(--accent2); }
+  .gen-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+  .copy-btn { background: var(--surface2); border: 1px solid var(--border2); border-radius: var(--radius-sm); color: var(--text); font-size: 12px; padding: 6px 12px; cursor: pointer; transition: all 0.15s; }
+  .copy-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .copy-btn.copied { border-color: var(--green); color: var(--green); }
+  .result-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+  .result-label { font-size: 12px; font-weight: 500; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; }
+  .prompt-box { background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 14px; font-size: 13px; line-height: 1.7; color: var(--text); min-height: 120px; white-space: pre-wrap; word-break: break-word; }
+  .prompt-box.empty { color: var(--muted); font-style: italic; }
+  .neg-box { background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 14px; font-size: 13px; line-height: 1.7; color: #f87171; min-height: 60px; white-space: pre-wrap; word-break: break-word; }
+  .neg-box.empty { color: var(--muted); font-style: italic; }
+  .status { font-size: 13px; color: var(--muted); padding: 8px 0; min-height: 30px; display: flex; align-items: center; gap: 8px; }
+  .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--accent); animation: pulse 1s infinite; flex-shrink: 0; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+  .divider { height: 1px; background: var(--border); margin: 16px 0; }
+  .tips { background: rgba(245,200,66,0.06); border: 1px solid rgba(245,200,66,0.15); border-radius: var(--radius-sm); padding: 12px 14px; font-size: 12px; color: var(--muted); line-height: 1.7; }
+  .tips strong { color: var(--accent); }
+  .higgsfield-btn { display: inline-block; margin-top: 12px; padding: 10px 18px; background: transparent; border: 1px solid var(--border2); border-radius: var(--radius-sm); color: var(--text); font-size: 13px; cursor: pointer; text-decoration: none; transition: all 0.15s; width: 100%; text-align: center; }
+  .higgsfield-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .upload-area { border: 1.5px dashed var(--border2); border-radius: var(--radius-sm); padding: 16px; text-align: center; cursor: pointer; transition: all 0.15s; background: var(--surface2); position: relative; }
+  .upload-area:hover { border-color: var(--accent); }
+  .upload-area.has-image { border-style: solid; border-color: var(--accent); padding: 8px; }
+  .upload-area input[type=file] { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
+  .upload-preview { width: 100%; max-height: 160px; object-fit: cover; border-radius: 6px; display: none; }
+  .upload-placeholder { font-size: 13px; color: var(--muted); pointer-events: none; }
+  .upload-placeholder span { display: block; font-size: 22px; margin-bottom: 6px; }
+  .remove-img { position: absolute; top: 6px; right: 6px; background: rgba(0,0,0,0.6); border: none; border-radius: 50%; width: 22px; height: 22px; color: #fff; font-size: 12px; cursor: pointer; display: none; align-items: center; justify-content: center; z-index: 2; }
+  .upload-area.has-image .remove-img { display: flex; }
+  .upload-area.has-image .upload-placeholder { display: none; }
+  .upload-area.has-image .upload-preview { display: block; }
+  @media (max-width: 768px) { .main { grid-template-columns: 1fr; height: auto; } .panel-left { border-right: none; border-bottom: 1px solid var(--border); } }
+</style>
+</head>
+<body>
+<div class="header">
+  <div class="header-icon">🍌</div>
+  <div>
+    <h1>Nano Banana Prompt Generator</h1>
+    <p>Claude AI-аар hyper-realistic prompt автоматаар үүсгэнэ</p>
+  </div>
+</div>
+<div class="main">
+  <div class="panel panel-left">
+    <div class="section">
+      <label>Claude API Key</label>
+      <div class="api-row">
+        <input type="password" id="claude-key" placeholder="sk-ant-..." />
+        <button class="eye-btn" onclick="toggleKey('claude-key', this)">харах</button>
+      </div>
+    </div>
+    <div class="section">
+      <label>Та юу үүсгэхийг хүсч байна вэ? (монголоор ч болно)</label>
+      <textarea id="user-idea" placeholder="Жишээ нь: Монгол эмэгтэй нарны жаргалтад зогсож байна..."></textarea>
+    </div>
+    <div class="section">
+      <label>Зургийн загвар</label>
+      <select id="style">
+        <option value="hyper-realistic photography">📷 Hyper-realistic гэрэл зураг</option>
+        <option value="cinematic film still">🎬 Кино кадр</option>
+        <option value="documentary photography">📰 Документал</option>
+        <option value="fashion editorial">👗 Фэшн эдиториал</option>
+        <option value="product photography">📦 Бүтээгдэхүүний зураг</option>
+        <option value="landscape photography">🏔 Байгалийн зураг</option>
+        <option value="street photography">🏙 Гудамжны зураг</option>
+        <option value="macro photography">🔬 Макро зураг</option>
+      </select>
+    </div>
+    <div class="grid2 section">
+      <div>
+        <label>Харьцаа</label>
+        <select id="ratio">
+          <option value="4:5">4:5 (Portrait)</option>
+          <option value="1:1">1:1 (Square)</option>
+          <option value="3:4">3:4</option>
+          <option value="16:9">16:9 (Wide)</option>
+          <option value="9:16">9:16 (Stories)</option>
+        </select>
+      </div>
+      <div>
+        <label>Нарийвчлал</label>
+        <select id="resolution">
+          <option value="2K">2K (Санал болгох)</option>
+          <option value="1K">1K (Хурдан)</option>
+          <option value="4K">4K (Чанартай)</option>
+        </select>
+      </div>
+    </div>
+    <div class="section">
+      <label>Reference зураг (заавал биш)</label>
+      <div class="upload-area" id="upload-area">
+        <input type="file" id="ref-image" accept="image/*" onchange="handleImageUpload(event)" />
+        <button class="remove-img" id="remove-btn" onclick="removeImage(event)">✕</button>
+        <img class="upload-preview" id="preview-img" />
+        <div class="upload-placeholder">
+          <span>🖼</span>
+          Зураг оруулах (дарах эсвэл чирэх)
+        </div>
+      </div>
+    </div>
+    <div class="section">
+      <label>Нэмэлт хүсэлт (заавал биш)</label>
+      <textarea id="extra" style="min-height:60px" placeholder="Жишээ нь: Өвлийн цас, шөнийн гэрэл..."></textarea>
+    </div>
+    <button class="gen-btn" id="gen-btn" onclick="generatePrompt()">✨ Prompt үүсгэх</button>
+    <div class="divider"></div>
+    <div class="tips"><strong>💡 Зөвлөгөө:</strong> Claude таны санааг камерын математик, гэрлийн физик бүхий professional prompt болгоно.</div>
+  </div>
+  <div class="panel">
+    <div class="status" id="status"></div>
+    <div class="section">
+      <div class="result-header">
+        <span class="result-label">✅ Prompt</span>
+        <button class="copy-btn" id="copy-pos" onclick="copyText('pos-out', 'copy-pos')">хуулах</button>
+      </div>
+      <div class="prompt-box empty" id="pos-out">Prompt энд гарч ирнэ...</div>
+    </div>
+    <div class="section">
+      <div class="result-header">
+        <span class="result-label">🚫 Negative Prompt</span>
+        <button class="copy-btn" id="copy-neg" onclick="copyText('neg-out', 'copy-neg')">хуулах</button>
+      </div>
+      <div class="neg-box empty" id="neg-out">Negative prompt энд гарч ирнэ...</div>
+    </div>
+    <div class="section" id="settings-section" style="display:none">
+      <div class="result-header">
+        <span class="result-label">⚙️ Тохиргоо</span>
+        <button class="copy-btn" id="copy-all" onclick="copyAll()">бүгдийг хуулах</button>
+      </div>
+      <div id="settings-out" style="font-size:13px; color: var(--muted); line-height:1.9;"></div>
+    </div>
+    <div id="action-section" style="display:none">
+      <div class="divider"></div>
+      <p style="font-size:12px; color:var(--muted); margin-bottom:8px;">Prompt-оо хуулаад доорх платформд ашиглана уу:</p>
+      <button class="higgsfield-btn" onclick="openLink('https://higgsfield.ai/image/nano_banana_flash')">🌐 Higgsfield дээр нээх →</button>
+      <button class="higgsfield-btn" style="margin-top:8px" onclick="openLink('https://kie.ai/nano-banana-2')">🔑 Kie.ai дээр нээх →</button>
+    </div>
+  </div>
+</div>
+<script>
+let refImageBase64 = null;
+let refImageType = null;
+function handleImageUpload(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  refImageType = file.type;
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    refImageBase64 = e.target.result.split(',')[1];
+    document.getElementById('preview-img').src = e.target.result;
+    document.getElementById('upload-area').classList.add('has-image');
+  };
+  reader.readAsDataURL(file);
+}
+function removeImage(e) {
+  e.stopPropagation();
+  refImageBase64 = null; refImageType = null;
+  document.getElementById('ref-image').value = '';
+  document.getElementById('preview-img').src = '';
+  document.getElementById('upload-area').classList.remove('has-image');
+}
+function toggleKey(id, btn) {
+  const inp = document.getElementById(id);
+  inp.type = inp.type === 'password' ? 'text' : 'password';
+  btn.textContent = inp.type === 'password' ? 'харах' : 'нуух';
+}
+function setStatus(msg, loading) {
+  const el = document.getElementById('status');
+  el.innerHTML = loading ? `<span class="dot"></span>${msg}` : (msg ? `<span style="color:var(--green)">✓ ${msg}</span>` : '');
+}
+function copyText(elId, btnId) {
+  const text = document.getElementById(elId).textContent;
+  if (!text || text.includes('энд гарч ирнэ')) return;
+  navigator.clipboard.writeText(text);
+  const btn = document.getElementById(btnId);
+  btn.textContent = 'хуулагдлаа ✓'; btn.classList.add('copied');
+  setTimeout(() => { btn.textContent = 'хуулах'; btn.classList.remove('copied'); }, 2000);
+}
+function copyAll() {
+  const pos = document.getElementById('pos-out').textContent;
+  const neg = document.getElementById('neg-out').textContent;
+  const ratio = document.getElementById('ratio').value;
+  const res = document.getElementById('resolution').value;
+  navigator.clipboard.writeText(`PROMPT:\n${pos}\n\nNEGATIVE PROMPT:\n${neg}\n\nRATIO: ${ratio}\nRESOLUTION: ${res}`);
+  const btn = document.getElementById('copy-all');
+  btn.textContent = 'хуулагдлаа ✓'; btn.classList.add('copied');
+  setTimeout(() => { btn.textContent = 'бүгдийг хуулах'; btn.classList.remove('copied'); }, 2000);
+}
+function openLink(url) { window.open(url, '_blank'); }
+async function generatePrompt() {
+  const apiKey = document.getElementById('claude-key').value.trim();
+  const idea = document.getElementById('user-idea').value.trim();
+  const style = document.getElementById('style').value;
+  const ratio = document.getElementById('ratio').value;
+  const resolution = document.getElementById('resolution').value;
+  const extra = document.getElementById('extra').value.trim();
+  if (!apiKey) { alert('Claude API key оруулна уу'); return; }
+  if (!idea) { alert('Зургийн санаагаа бичнэ үү'); return; }
+  const btn = document.getElementById('gen-btn');
+  btn.disabled = true;
+  setStatus('Claude prompt үүсгэж байна...', true);
+  document.getElementById('pos-out').textContent = '';
+  document.getElementById('pos-out').classList.add('empty');
+  document.getElementById('neg-out').textContent = '';
+  document.getElementById('neg-out').classList.add('empty');
+  document.getElementById('settings-section').style.display = 'none';
+  document.getElementById('action-section').style.display = 'none';
+  const systemPrompt = `You are an expert AI image prompt engineer specializing in Nano Banana 2 hyper-realistic image generation. Transform the user's idea into a professional prompt. If a reference image is provided, analyze facial structure, skin tone, hair, distinctive features and describe them precisely. RULES: Use camera math (85mm, f/1.8, ISO 200-800), describe lighting behavior, include physical imperfections, use imperative negative commands inside prompt. Style: ${style}. Aspect ratio: ${ratio}. Respond ONLY in JSON: {"prompt":"...","negative_prompt":"..."}`;
+  const textPart = { type: 'text', text: `Create a Nano Banana 2 prompt for: "${idea}"${extra ? `. Additional: ${extra}` : ''}. Style: ${style}. Hyper-realistic and ultra-detailed.${refImageBase64 ? ' Reference image attached — analyze and incorporate facial features.' : ''}` };
+  const msgContent = refImageBase64 ? [{ type: 'image', source: { type: 'base64', media_type: refImageType, data: refImageBase64 } }, textPart] : [textPart];
+  try {
+    const res = await fetch('/api/generate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ apiKey, system: systemPrompt, messages: [{ role: 'user', content: msgContent }] })
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error?.message || 'API алдаа');
+    const text = data.content?.map(c => c.text || '').join('') || '';
+    const parsed = JSON.parse(text.replace(/```json|```/g, '').trim());
+    document.getElementById('pos-out').textContent = parsed.prompt;
+    document.getElementById('pos-out').classList.remove('empty');
+    document.getElementById('neg-out').textContent = parsed.negative_prompt;
+    document.getElementById('neg-out').classList.remove('empty');
+    document.getElementById('settings-out').innerHTML = `<span style="color:var(--accent)">Харьцаа:</span> ${ratio} &nbsp;|&nbsp; <span style="color:var(--accent)">Нарийвчлал:</span> ${resolution} &nbsp;|&nbsp; <span style="color:var(--accent)">Загвар:</span> ${style}`;
+    document.getElementById('settings-section').style.display = 'block';
+    document.getElementById('action-section').style.display = 'block';
+    setStatus('Prompt амжилттай үүслээ!', false);
+  } catch(e) {
+    setStatus('', false);
+    document.getElementById('status').innerHTML = `<span style="color:var(--red)">⚠ Алдаа: ${e.message}</span>`;
+  } finally { btn.disabled = false; }
+}
+</script>
+</body>
+</html>
